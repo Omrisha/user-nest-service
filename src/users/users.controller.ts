@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseFilters } from '@nestjs/common';
+import { HttpExceptionFilter } from '../common/filter/http-exception-filter';
+import { CreateUser } from './dto/create-user.dto';
+import { UpdateUser } from './dto/update-user.dto';
 import { User } from './user.entity';
 import { UsersService } from './users.service';
 
@@ -7,23 +10,29 @@ export class UsersController {
 
     constructor(private service: UsersService) {}
 
+    @Get()
+    findAll(): Promise<User[]> {
+        return this.service.getUsers();
+    }
+
     @Get(':id')
-    get(@Param() params) {
-        return this.service.getUser(params.id);
+    findOne(@Param('id', new ParseIntPipe()) id: number): Promise<User> {
+        return this.service.getUser(id);
     }
 
     @Post()
-    create(@Body() user: User) {
+    create(@Body() user: CreateUser): Promise<User> {
         return this.service.createUser(user);
     }
 
     @Put()
-    update(@Body() user: User) {
+    @UseFilters(HttpExceptionFilter)
+    update(@Body() user: UpdateUser) {
         return this.service.updateUser(user);
     }
 
     @Delete(':id')
-    deleteUser(@Param() params) {
-        return this.service.deleteUser(params.id);
+    deleteUser(@Param('id', new ParseIntPipe()) id: number) {
+        this.service.deleteUser(id);
     }
 }
