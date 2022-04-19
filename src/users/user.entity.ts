@@ -10,7 +10,7 @@ export class User {
     @Column({ length: 25 })
     fullName: string;
 
-    @Column('date')
+    @Column('datetime')
     birthDate: Date;
 
     @Column()
