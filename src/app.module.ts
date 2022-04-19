@@ -1,7 +1,6 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -12,10 +11,16 @@ import { UsersModule } from './users/users.module';
     username: "root",
     password: "root",
     database: "nest_users",
-    entities: [__dirname + "/**/**.entity{.ts,.js"],
-    synchronize: true
-}), UsersModule],
-  controllers: [AppController],
-  providers: [AppService],
+    entities: ["dist/**/**.entity{.ts,.js"],
+    autoLoadEntities: true,
+    synchronize: true,
+    logging: true
+}), UsersModule]
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+    .apply(LoggerMiddleware)
+    .forRoutes('*');
+  }
+}
