@@ -10,6 +10,12 @@ export class User {
     @Column({ length: 25 })
     fullName: string;
 
+    @Column({ length: 25 })
+    username: string;
+
+    @Column()
+    password: string;
+
     @Column('datetime')
     birthDate: Date;
 

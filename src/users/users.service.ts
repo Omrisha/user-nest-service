@@ -1,9 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm/repository/Repository';
 import { CreateUser } from './dto/create-user.dto';
 import { UpdateUser } from './dto/update-user.dto';
 import { User } from './user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -21,9 +22,20 @@ export class UsersService {
         });
     }
 
+    async findOne(username: string): Promise<User> {
+        return await this.userRepository.findOne({
+            select: [ "id", "username", "password" ],
+            where: [{ "username": username }]
+        });
+    }
+
     async createUser(createUserDto: CreateUser): Promise<User> {
+        const saltOrRounds = 10;
+
         const user = new User();
         user.fullName = createUserDto.fullName;
+        user.username = createUserDto.username;
+        user.password = await bcrypt.hash(createUserDto.password, saltOrRounds);
         user.birthDate = createUserDto.birthDate;
         user.isActive = createUserDto.isActive;
 
@@ -31,7 +43,12 @@ export class UsersService {
     }
 
     async updateUser(user: UpdateUser): Promise<number> {
-        return await (await this.userRepository.update(user.id, { "fullName": user.fullName, "isActive": user.isActive })).affected;
+        return await (await this.userRepository.update(user.id, { 
+            "fullName": user.fullName,
+            "username": user.username,
+            "password": user.password,
+            "isActive": user.isActive 
+        })).affected;
     }
 
     async deleteUser(_id: number) {
