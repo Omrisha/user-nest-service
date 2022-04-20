@@ -2,6 +2,8 @@ import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [TypeOrmModule.forRoot({
@@ -15,7 +17,8 @@ import { UsersModule } from './users/users.module';
     autoLoadEntities: true,
     synchronize: true,
     logging: true
-}), UsersModule]
+}), UsersModule, AuthModule],
+  controllers: [AppController]
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
